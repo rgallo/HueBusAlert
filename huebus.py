@@ -21,10 +21,10 @@ class UTC(datetime.tzinfo):
 
 utc = UTC()
 
-def set_light(huebridge, lightname, hue, sat):
-    huebridge.set_light(lightname, {'hue': hue, 'sat': sat, 'on': True})
+def set_light(huebridge, lightname, hue, sat, bri):
+    huebridge.set_light(lightname, {'hue': hue, 'sat': sat, 'bri': bri, 'on': True})
 
-def loop(url, huebridge, lightname, ranges, defaulthue, defaultsat):
+def loop(url, huebridge, lightname, ranges, defaultrange):
     resp = requests.get(url).json()
     #print resp
     mvjs = resp["Siri"]["ServiceDelivery"]["StopMonitoringDelivery"][0]["MonitoredStopVisit"]
@@ -35,11 +35,10 @@ def loop(url, huebridge, lightname, ranges, defaulthue, defaultsat):
     print [(t-now).seconds for t in arrivaltimes]
     for range in ranges:
       if [t for t in arrivaltimes if range["min"] < (t-now).seconds < range["max"]]:
-        huebridge.set_light(lightname, {'hue': range["hue"], 'sat': range["sat"]})
-        set_light(huebridge, lightname, range["hue"], range["sat"])
+        set_light(huebridge, lightname, range.get("hue", 254), range.get("sat", 254), range.get("bri", 254))
         break
     else:
-      set_light(huebridge, lightname, defaulthue, defaultsat)
+      set_light(huebridge, lightname, defaultrange.get("hue", 254), defaultrange.get("sat", 254), defaultrange.get("bri", 254))
 
 def main():
     with open("config.json", "r") as cfgfile:
@@ -50,7 +49,7 @@ def main():
     lightname = config.get("lightname")
 
     while True:
-        loop(url, huebridge, lightname, config.get("ranges"), config.get("defaultcolor"), config.get("defaultsat"))
+        loop(url, huebridge, lightname, config.get("ranges"), config.get("defaultrange"))
         time.sleep(30)
 
 

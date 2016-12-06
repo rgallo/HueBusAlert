@@ -11,16 +11,21 @@
       "min": 300,
       "max": 480,
       "hue": 25500,
-      "sat": 200
+      "sat": 254,
+      "bri": 254
     },
     {
       "min": 480,
       "max": 720,
       "hue": 12750,
-      "sat": 200
+      "sat": 254,
+      "bri": 254
     }
   ],
-  "defaultcolor": 0,
-  "defaultsat": 200,
+  "defaultrange": {
+    "hue": 0,
+    "sat": 254,
+    "bri": 254
+  },
   "bridge": "192.168.1.119"
 }
