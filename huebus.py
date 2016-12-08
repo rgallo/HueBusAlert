@@ -43,18 +43,20 @@ def loop(url, huebridge, lightname, ranges, defaultrange):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--runtime", help="runtime in minutes")
+    parser.add_argument("--config", default="config.json", help="path to config.json file")
+    parser.add_argument("--lightname", help="light name override")
     args = parser.parse_args()
     runtime = int(args.runtime)
+    config = args.config
     endtime = datetime.datetime.now() + datetime.timedelta(minutes=runtime)
-    with open("config.json", "r") as cfgfile:
+    with open(config, "r") as cfgfile:
         config = json.load(cfgfile)
     huebridge = Bridge(config.get("bridge"))
-    lightname = config.get("lightname")
+    lightname = args.lightname or config.get("lightname")
     initial_lightstate = get_light_state(huebridge, lightname)
     url = "{}?{}".format(BUSTIME_URL, "&".join("{}={}".format(k, v) for k, v in config.get("apiparams").iteritems()))
 
     while datetime.datetime.now() < endtime:
-        print datetime.datetime.now(), endtime
         loop(url, huebridge, lightname, config.get("ranges"), config.get("defaultrange"))
         time.sleep(30)
     huebridge.set_light(lightname, initial_lightstate)
